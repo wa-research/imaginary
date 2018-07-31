@@ -47,7 +47,7 @@ func resizer(buf []byte, o Options) ([]byte, error) {
 	inHeight := int(image.Ysize)
 
 	// Infer the required operation based on the in/out image sizes for a coherent transformation
-	normalizeOperation(&o, inWidth, inHeight)
+	// normalizeOperation(&o, inWidth, inHeight)
 
 	// image calculations
 	factor := imageCalculations(&o, inWidth, inHeight)

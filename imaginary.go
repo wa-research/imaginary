@@ -32,6 +32,7 @@ var (
 	aEnableURLSignature = flag.Bool("enable-url-signature", false, "Enable URL signature (URL-safe Base64-encoded HMAC digest)")
 	aURLSignatureKey    = flag.String("url-signature-key", "", "The URL signature key (32 characters minimum)")
 	aAllowedOrigins     = flag.String("allowed-origins", "", "Restrict remote image source processing to certain origins (separated by commas)")
+	aAllowedURLPrefixs  = flag.String("allowed-url-prefix", "", "Restrict remote image source processing to certain url prefixs (separated by commas)")
 	aMaxAllowedSize     = flag.Int("max-allowed-size", 0, "Restrict maximum size of http image source (in bytes)")
 	aKey                = flag.String("key", "", "Define API key for authorization")
 	aMount              = flag.String("mount", "", "Mount server local directory")
@@ -100,7 +101,7 @@ Options:
 `
 
 type URLSignature struct {
-	Key  string
+	Key string
 }
 
 func main() {
@@ -144,6 +145,7 @@ func main() {
 		HTTPWriteTimeout:   *aWriteTimeout,
 		Authorization:      *aAuthorization,
 		AllowedOrigins:     parseOrigins(*aAllowedOrigins),
+		AllowedURLPrefixs:  parseURLPrefixs(*aAllowedURLPrefixs),
 		MaxAllowedSize:     *aMaxAllowedSize,
 	}
 
@@ -277,6 +279,17 @@ func parseOrigins(origins string) []*url.URL {
 		urls = append(urls, u)
 	}
 	return urls
+}
+
+func parseURLPrefixs(_prefixs string) []string {
+	prefixs := []string{}
+	if _prefixs == "" {
+		return prefixs
+	}
+	for _, prefix := range strings.Split(_prefixs, ",") {
+		prefixs = append(prefixs, prefix)
+	}
+	return prefixs
 }
 
 func parseEndpoints(input string) Endpoints {

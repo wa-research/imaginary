@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 const ImageSourceTypeHttp ImageSourceType = "http"
@@ -29,6 +30,9 @@ func (s *HttpImageSource) GetImage(req *http.Request) ([]byte, error) {
 	}
 	if shouldRestrictOrigin(url, s.Config.AllowedOrigings) {
 		return nil, fmt.Errorf("Not allowed remote URL origin: %s", url.Host)
+	}
+	if shouldRestrictURLPrefix(url, s.Config.AllowedURLPrefixs) {
+		return nil, fmt.Errorf("Not allowed remote URL prefix: %s", url.String())
 	}
 	return s.fetchImage(url, req)
 }
@@ -108,6 +112,18 @@ func shouldRestrictOrigin(url *url.URL, origins []*url.URL) bool {
 	}
 	for _, origin := range origins {
 		if origin.Host == url.Host {
+			return false
+		}
+	}
+	return true
+}
+
+func shouldRestrictURLPrefix(url *url.URL, prefixs []string) bool {
+	if len(prefixs) == 0 {
+		return false
+	}
+	for _, prefix := range prefixs {
+		if strings.HasPrefix(url.String(), prefix) {
 			return false
 		}
 	}
