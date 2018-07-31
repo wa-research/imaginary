@@ -66,10 +66,10 @@ RUN go get -u golang.org/x/net/context
 RUN go get -u github.com/golang/dep/cmd/dep
 
 # Copy imaginary sources
-COPY . $GOPATH/src/github.com/h2non/imaginary
+COPY . $GOPATH/src/github.com/imeoer/imaginary
 
 # Compile imaginary
-RUN go build -o bin/imaginary github.com/h2non/imaginary
+RUN go build -o bin/imaginary github.com/imeoer/imaginary
 
 FROM ubuntu:16.04
 
