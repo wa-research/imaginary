@@ -1,8 +1,14 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"image"
+	"image/draw"
+	"image/gif"
+	"image/png"
 	"mime"
 	"net/http"
 	"strconv"
@@ -68,6 +74,34 @@ func determineAcceptMimeType(accept string) string {
 	return ""
 }
 
+func convertToPNG(buf []byte) ([]byte, error) {
+	reader := bytes.NewReader(buf)
+
+	config, err := gif.DecodeConfig(reader)
+	if err != nil {
+		return nil, err
+	}
+	rect := image.Rect(0, 0, config.Width, config.Height)
+
+	reader = bytes.NewReader(buf)
+	src, err := gif.Decode(reader)
+	if err != nil {
+		return nil, err
+	}
+
+	img := image.NewRGBA(rect)
+	draw.Draw(img, img.Bounds(), src, image.ZP, draw.Src)
+
+	var data bytes.Buffer
+	writer := bufio.NewWriter(&data)
+	png.Encode(writer, img)
+	if err != nil {
+		return nil, err
+	}
+
+	return data.Bytes(), nil
+}
+
 func imageHandler(w http.ResponseWriter, r *http.Request, buf []byte, Operation Operation, o ServerOptions) {
 	// Infer the body MIME type via mimesniff algorithm
 	mimeType := http.DetectContentType(buf)
@@ -101,6 +135,15 @@ func imageHandler(w http.ResponseWriter, r *http.Request, buf []byte, Operation 
 	} else if opts.Type != "" && ImageType(opts.Type) == 0 {
 		ErrorReply(r, w, ErrOutputFormat, o)
 		return
+	}
+
+	if mimeType == "image/gif" {
+		_buf, err := convertToPNG(buf)
+		if err != nil {
+			ErrorReply(r, w, NewError("Error while processing the GIF image: "+err.Error(), BadRequest), o)
+			return
+		}
+		buf = _buf
 	}
 
 	image, err := Operation.Run(buf, opts)
