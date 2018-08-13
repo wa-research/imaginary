@@ -8,7 +8,7 @@ import (
 	"image"
 	"image/draw"
 	"image/gif"
-	"image/png"
+	"image/jpeg"
 	"mime"
 	"net/http"
 	"strconv"
@@ -94,7 +94,7 @@ func convertToPNG(buf []byte) ([]byte, error) {
 
 	var data bytes.Buffer
 	writer := bufio.NewWriter(&data)
-	png.Encode(writer, img)
+	jpeg.Encode(writer, img, nil)
 	if err != nil {
 		return nil, err
 	}
