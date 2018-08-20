@@ -202,7 +202,7 @@ func Thumbnail(buf []byte, o ImageOptions) (Image, error) {
 		return Image{}, NewError("Missing required params: width or height", BadRequest)
 	}
 
-	if o.Width > 1000 || o.Height > 1000 {
+	if o.Width > 1500 || o.Height > 1500 {
 		return Image{}, NewError("Exceeded the maximum processable size", BadRequest)
 	}
 

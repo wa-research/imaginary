@@ -74,7 +74,7 @@ func determineAcceptMimeType(accept string) string {
 	return ""
 }
 
-func convertToPNG(buf []byte) ([]byte, error) {
+func convertToJPEG(buf []byte) ([]byte, error) {
 	reader := bytes.NewReader(buf)
 
 	config, err := gif.DecodeConfig(reader)
@@ -138,7 +138,7 @@ func imageHandler(w http.ResponseWriter, r *http.Request, buf []byte, Operation 
 	}
 
 	if mimeType == "image/gif" {
-		_buf, err := convertToPNG(buf)
+		_buf, err := convertToJPEG(buf)
 		if err != nil {
 			ErrorReply(r, w, NewError("Error while processing the GIF image: "+err.Error(), BadRequest), o)
 			return
