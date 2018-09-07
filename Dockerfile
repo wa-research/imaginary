@@ -1,23 +1,19 @@
-# Start from a Debian image with the latest version of Go installed
-# and a workspace (GOPATH) configured at /go.
 FROM ubuntu:16.04 as builder
-MAINTAINER tomas@aparicio.me
+LABEL maintainer damir.simunic@wa-research.ch
 
 ENV LIBVIPS_VERSION 8.6.3
 
 # Installs libvips + required libraries
 RUN \
-
   # Install dependencies
   apt-get update && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   ca-certificates \
   automake build-essential curl \
   gobject-introspection gtk-doc-tools libglib2.0-dev libjpeg-turbo8-dev libpng12-dev \
   libwebp-dev libtiff5-dev libgif-dev libexif-dev libxml2-dev libpoppler-glib-dev \
   swig libmagickwand-dev libpango1.0-dev libmatio-dev libopenslide-dev libcfitsio-dev \
-  libgsf-1-dev fftw3-dev liborc-0.4-dev librsvg2-dev && \
-
+  libgsf-1-dev fftw3-dev liborc-0.4-dev librsvg2-dev gcc git libc6-dev make && \
   # Build libvips
   cd /tmp && \
   curl -OL https://github.com/jcupitt/libvips/releases/download/v${LIBVIPS_VERSION}/vips-${LIBVIPS_VERSION}.tar.gz && \
@@ -26,26 +22,10 @@ RUN \
   ./configure --enable-debug=no --without-python $1 && \
   make && \
   make install && \
-  ldconfig && \
-
-  # Clean up
-  apt-get remove -y curl automake build-essential && \
-  apt-get autoremove -y && \
-  apt-get autoclean && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# Server port to listen
-ENV PORT 9000
+  ldconfig
 
 # Go version to use
 ENV GOLANG_VERSION 1.10
-
-# gcc for cgo
-RUN apt-get update && apt-get install -y \
-    gcc curl git libc6-dev make \
-    --no-install-recommends \
-  && rm -rf /var/lib/apt/lists/*
 
 ENV GOLANG_DOWNLOAD_URL https://golang.org/dl/go$GOLANG_VERSION.linux-amd64.tar.gz
 ENV GOLANG_DOWNLOAD_SHA256 b5a64335f1490277b585832d1f6c7f8c6c11206cba5cd3f771dcb87b98ad1a33
@@ -66,10 +46,16 @@ RUN go get -u golang.org/x/net/context
 RUN go get -u github.com/golang/dep/cmd/dep
 
 # Copy imaginary sources
-COPY . $GOPATH/src/github.com/imeoer/imaginary
+COPY . $GOPATH/src/github.com/wa-research/imaginary
 
 # Compile imaginary
-RUN go build -o bin/imaginary github.com/imeoer/imaginary
+RUN go build -o bin/imaginary github.com/wa-research/imaginary
+
+RUN apt-get remove -y curl automake build-essential git && \
+  apt-get autoremove -y && \
+  apt-get autoclean && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 FROM ubuntu:16.04
 
@@ -93,10 +79,10 @@ COPY --from=builder /go/bin/imaginary bin/
 COPY --from=builder /etc/ssl/certs /etc/ssl/certs
 
 # Server port to listen
-ENV PORT 9000
+ENV PORT 10001
 
 # Run the entrypoint command by default when the container starts.
 ENTRYPOINT ["bin/imaginary"]
 
 # Expose the server TCP port
-EXPOSE 9000
+EXPOSE 10001
