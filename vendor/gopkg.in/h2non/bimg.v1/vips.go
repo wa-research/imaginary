@@ -76,6 +76,10 @@ type vipsWatermarkTextOptions struct {
 	Font *C.char
 }
 
+type vipsOptions struct {
+	PageNum C.int
+}
+
 func init() {
 	Initialize()
 }

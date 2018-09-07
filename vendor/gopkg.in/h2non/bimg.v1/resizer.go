@@ -17,7 +17,7 @@ import (
 func resizer(buf []byte, o Options) ([]byte, error) {
 	defer C.vips_thread_shutdown()
 
-	image, imageType, err := loadImage(buf)
+	image, imageType, err := loadImageWithOptions(buf, o)
 	if err != nil {
 		return nil, err
 	}
@@ -125,11 +125,16 @@ func resizer(buf []byte, o Options) ([]byte, error) {
 }
 
 func loadImage(buf []byte) (*C.VipsImage, ImageType, error) {
+	return loadImageWithOptions(buf, Options{})
+}
+
+func loadImageWithOptions(buf []byte, o Options) (*C.VipsImage, ImageType, error) {
 	if len(buf) == 0 {
 		return nil, JPEG, errors.New("Image buffer is empty")
 	}
 
-	image, imageType, err := vipsRead(buf)
+	image, imageType, err := vipsReadWithOptions(buf, o)
+
 	if err != nil {
 		return nil, JPEG, err
 	}
@@ -293,7 +298,6 @@ func extractOrEmbedImage(image *C.VipsImage, o Options) (*C.VipsImage, error) {
 func rotateAndFlipImage(image *C.VipsImage, o Options) (*C.VipsImage, bool, error) {
 	var err error
 	var rotated bool
-	var direction Direction = -1
 
 	if o.NoAutoRotate == false {
 		rotation, flip := calculateRotationAndFlip(image, o.Rotate)
@@ -311,16 +315,14 @@ func rotateAndFlipImage(image *C.VipsImage, o Options) (*C.VipsImage, bool, erro
 	}
 
 	if o.Flip {
-		direction = Horizontal
-	} else if o.Flop {
-		direction = Vertical
-	}
-
-	if direction != -1 {
 		rotated = true
-		image, err = vipsFlip(image, direction)
+		image, err = vipsFlip(image, Vertical)
 	}
 
+	if o.Flop {
+		rotated = true
+		image, err = vipsFlip(image, Horizontal)
+	}
 	return image, rotated, err
 }
 
