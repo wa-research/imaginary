@@ -45,6 +45,7 @@ var allowedParams = map[string]string{
 	"sigma":       "float",
 	"minampl":     "float",
 	"operations":  "json",
+	"page":        "int",
 }
 
 func readParams(query url.Values) ImageOptions {
@@ -152,6 +153,7 @@ func mapImageParams(params map[string]interface{}) ImageOptions {
 		Sigma:         params["sigma"].(float64),
 		MinAmpl:       params["minampl"].(float64),
 		Operations:    params["operations"].(PipelineOperations),
+		PageNum:        params["page"].(int),
 	}
 }
 

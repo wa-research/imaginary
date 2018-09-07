@@ -25,6 +25,7 @@ type ImageOptions struct {
 	NoReplicate   bool
 	NoRotation    bool
 	NoProfile     bool
+	PageNum		  int
 	StripMetadata bool
 	Opacity       float32
 	Sigma         float64
@@ -71,6 +72,7 @@ func BimgOptions(o ImageOptions) bimg.Options {
 		StripMetadata:  o.StripMetadata,
 		Type:           ImageType(o.Type),
 		Rotate:         bimg.Angle(o.Rotate),
+		PageNum:		o.PageNum,
 	}
 
 	if len(o.Background) != 0 {
