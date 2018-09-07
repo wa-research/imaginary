@@ -1,7 +1,5 @@
 # imaginary [![Build Status](https://travis-ci.org/h2non/imaginary.png)](https://travis-ci.org/h2non/imaginary) [![Docker](https://img.shields.io/badge/docker-h2non/imaginary-blue.svg)](https://hub.docker.com/r/h2non/imaginary/) [![Docker Registry](https://img.shields.io/docker/pulls/h2non/imaginary.svg)](https://hub.docker.com/r/h2non/imaginary/) [![Go Report Card](http://goreportcard.com/badge/h2non/imaginary)](http://goreportcard.com/report/h2non/imaginary) ![ImageLayers](https://badge.imagelayers.io/h2non/imaginary.svg)
 
-<img src="http://s14.postimg.org/8th71a201/imaginary_world.jpg" width="100%" />
-
 **[Fast](#benchmarks) HTTP [microservice](http://microservices.io/patterns/microservices.html)** written in Go **for high-level image processing** backed by [bimg](https://github.com/h2non/bimg) and [libvips](https://github.com/jcupitt/libvips). `imaginary` can be used as private or public HTTP service for massive image processing with first-class support for [Docker](#docker) & [Heroku](#heroku).
 It's almost dependency-free and only uses [`net/http`](http://golang.org/pkg/net/http/) native package without additional abstractions for better [performance](#performance).
 
@@ -233,7 +231,7 @@ Assuming that you want to provide a high availability to deal efficiently with, 
         |==============|
         |   Balancer   |
         |==============|
-           |       |   
+           |       |
           /         \
          /           \
         /             \
@@ -814,22 +812,20 @@ Accepts: `image/*, multipart/form-data`. Content-Type: `image/*`
 #### GET | POST /fit
 Accepts: `image/*, multipart/form-data`. Content-Type: `image/*`
 
-Resize an image to fit within width and height, without cropping. Image aspect ratio is maintained
-The width and height specify a maximum bounding box for the image.
+Resize an image to fit within a bounding box without cropping. Image aspect ratio is maintained.
+The areawidth and/or areaheight specify a maximum bounding box for the image. Optionally embed the resized
+image in the bounding box by setting `embed=true`.
 
 ##### Allowed params
 
-- width `int` `required`
-- height `int` `required`
+- areawidth `int` `required`
+- areaheight `int` `required`
 - quality `int` (JPEG-only)
 - compression `int` (PNG-only)
 - type `string`
 - file `string` - Only GET method and if the `-mount` flag is present
 - url `string` - Only GET method and if the `-enable-url-source` flag is present
 - embed `bool`
-- force `bool`
-- rotate `int`
-- norotation `bool`
 - noprofile `bool`
 - stripmeta `bool`
 - flip `bool`

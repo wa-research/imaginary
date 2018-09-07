@@ -97,8 +97,8 @@ func Resize(buf []byte, o ImageOptions) (Image, error) {
 }
 
 func Fit(buf []byte, o ImageOptions) (Image, error) {
-	if o.Width == 0 || o.Height == 0 {
-		return Image{}, NewError("Missing required params: height, width", BadRequest)
+	if o.AreaWidth == 0 && o.AreaHeight == 0 {
+		return Image{}, NewError("Missing required params: one or both of areaheight, areawidth", BadRequest)
 	}
 
 	dims, err := bimg.Size(buf)
@@ -106,22 +106,37 @@ func Fit(buf []byte, o ImageOptions) (Image, error) {
 		return Image{}, err
 	}
 
+	aw := o.AreaWidth
+	ah := o.AreaHeight
+
+	if aw == 0 {
+		aw = dims.Width
+	}
+	if ah == 0 {
+		ah = dims.Height
+	}
+
 	// if input ratio > output ratio
 	// (calculation multiplied through by denominators to avoid float division)
-	if dims.Width*o.Height > o.Width*dims.Height {
+	if dims.Width*ah > aw*dims.Height {
 		// constrained by width
 		if dims.Width != 0 {
-			o.Height = o.Width * dims.Height / dims.Width
+			o.Height = aw * dims.Height / dims.Width
+			o.Width = aw
 		}
 	} else {
 		// constrained by height
 		if dims.Height != 0 {
-			o.Width = o.Height * dims.Width / dims.Height
+			o.Width = ah * dims.Width / dims.Height
+			o.Height = ah
 		}
 	}
 
 	opts := BimgOptions(o)
-	opts.Embed = true
+	//opts.Embed = true
+
+	opts.AreaWidth = aw
+	opts.AreaHeight = ah
 
 	return Process(buf, opts)
 }
