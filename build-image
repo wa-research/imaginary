@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+HASH=$(cd $DIR >/dev/null && git log -1 --pretty=format:"%h")
+
+docker build -f ${DIR}/Dockerfile \
+             -t containers.influent.cc/thumbnailer:latest \
+             -t containers.influent.cc/thumbnailer:${HASH} \
+             ${DIR}
+
+DANG=$(docker images -f "dangling=true" -q)
+if [[ -n ${DANG} ]]
+    then
+        echo "Removing dangling images"
+        docker rmi ${DANG}
+fi

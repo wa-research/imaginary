@@ -1,7 +1,7 @@
 FROM ubuntu:16.04 as builder
 LABEL maintainer damir.simunic@wa-research.ch
 
-ENV LIBVIPS_VERSION 8.6.3
+ENV LIBVIPS_VERSION 8.6.5
 
 # Installs libvips + required libraries
 RUN \
@@ -16,7 +16,7 @@ RUN \
   libgsf-1-dev fftw3-dev liborc-0.4-dev librsvg2-dev gcc git libc6-dev make && \
   # Build libvips
   cd /tmp && \
-  curl -OL https://github.com/jcupitt/libvips/releases/download/v${LIBVIPS_VERSION}/vips-${LIBVIPS_VERSION}.tar.gz && \
+  curl -OL https://github.com/libvips/libvips/releases/download/v${LIBVIPS_VERSION}/vips-${LIBVIPS_VERSION}.tar.gz && \
   tar zvxf vips-${LIBVIPS_VERSION}.tar.gz && \
   cd /tmp/vips-${LIBVIPS_VERSION} && \
   ./configure --enable-debug=no --without-python $1 && \
