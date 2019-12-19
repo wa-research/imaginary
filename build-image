@@ -3,6 +3,13 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 HASH=$(cd $DIR >/dev/null && git log -1 --pretty=format:"%h")
 
+mkdir -p ${DIR}/certs
+
+CERT_PATH="$(mkcert -CAROOT)"
+cp -r "${CERT_PATH}"/rootCA.pem ${DIR}/certs/rootCA.crt
+cp -r "${CERT_PATH}"/rootCA-key.pem ${DIR}/certs/rootCA-key.crt
+
+
 docker build -f ${DIR}/Dockerfile \
              -t containers.influent.cc/thumbnailer:latest \
              -t containers.influent.cc/thumbnailer:${HASH} \
@@ -14,3 +21,5 @@ if [[ -n ${DANG} ]]
         echo "Removing dangling images"
         docker rmi ${DANG}
 fi
+
+rm -rf ${DIR}/certs

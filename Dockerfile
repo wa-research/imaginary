@@ -51,6 +51,8 @@ COPY . $GOPATH/src/github.com/wa-research/imaginary
 # Compile imaginary
 RUN go build -o bin/imaginary github.com/wa-research/imaginary
 
+COPY ./certs /usr/local/share/ca-certificates
+RUN update-ca-certificates
 RUN apt-get remove -y curl automake build-essential git && \
   apt-get autoremove -y && \
   apt-get autoclean && \
